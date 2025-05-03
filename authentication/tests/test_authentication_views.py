@@ -1,11 +1,11 @@
 from rest_framework import status
 from authentication.models import LoginHistory
 from django.contrib.auth.models import User
-from authentication.tests.base import AuthenticationTestCase
+from core.tests import AuthenticationTestCase
 from django.urls import reverse
 
 
-class ViewsTest(AuthenticationTestCase):
+class AuthenticationViewsTest(AuthenticationTestCase):
     def test_registration_successful(self):
         url = reverse('authentication:auth_register')
         data = {
