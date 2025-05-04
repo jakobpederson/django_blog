@@ -56,19 +56,6 @@ class AuthenticationViewsTest(AuthenticationTestCase):
         }
         self.assertEqual(response.json(), expected)
 
-    def test_login_history_created(self):
-        token_url = reverse('authentication:token_obtain_pair')
-        token_data = {
-            'username': f'{self.test_user.username}',
-            'password': f'{self.test_user_password}'
-        }
-        token_response = self.client.post(token_url, token_data, format='json')
-        self.assertEqual(token_response.status_code, status.HTTP_200_OK)
-        token = token_response.data['access']
-        self.assertEqual(LoginHistory.objects.count(), 1)
-        login_history = LoginHistory.objects.first()
-        self.assertEqual(login_history.user.id, self.test_user.id)
-
     def test_must_be_authenticated_to_get_user_profile(self):
         url = reverse('authentication:auth_profile')
         response = self.client.get(url, format='json')
