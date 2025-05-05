@@ -14,4 +14,16 @@ class DashboardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'profile']
+        fields = ['id', 'username', 'profile', 'first_name', 'last_name']
+
+    def update(self, instance, validated_data):
+        profile = instance.profile
+        profile_data = validated_data.pop("profile")
+        for key, val in profile_data.items():
+            setattr(profile, key, val)
+        profile.save()
+        user = instance
+        for key, val in validated_data.items():
+            setattr(user, key, val)
+        user.save()
+        return user

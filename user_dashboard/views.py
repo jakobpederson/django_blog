@@ -5,7 +5,7 @@ from user_dashboard.serializers import DashboardSerializer
 from user_dashboard.models import UserProfile
 
 
-class DashboardView(generics.RetrieveAPIView):
+class DashboardView(generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = DashboardSerializer
 
