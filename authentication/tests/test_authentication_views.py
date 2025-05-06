@@ -36,7 +36,7 @@ class AuthenticationViewsTest(AuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(User.objects.filter(username='newuser').exists())
 
-    def test_get_user_profile(self):
+    def test_get_token_pair(self):
         token_url = reverse('authentication:token_obtain_pair')
         token_data = {
             'username': f'{self.test_user.username}',
@@ -61,7 +61,7 @@ class AuthenticationViewsTest(AuthenticationTestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_patch_user_profile(self):
+    def test_create_user_profile(self):
         token_url = reverse('authentication:token_obtain_pair')
         token_data = {
             'username': f'{self.test_user.username}',
@@ -97,3 +97,18 @@ class AuthenticationViewsTest(AuthenticationTestCase):
         url = reverse('authentication:auth_profile')
         response = self.client.patch(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_refresh_token_successful(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        data = {
+            'username': 'testuser',
+            'password': 'TestPass123!'
+        }
+        token_response = self.client.post(token_url, data, format='json')
+        refresh_token = token_response.data['refresh']
+        url = reverse('authentication:token_refresh')
+        data = {'refresh': refresh_token}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
