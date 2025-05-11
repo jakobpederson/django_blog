@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include(('authentication.urls', 'authentication'), namespace='authentication')),
     path('api/dashboard/', include(('user_dashboard.urls', 'user_dashboard'), namespace='user_dashboard')),
+    path('api/blog/', include(('blog.urls', 'blog'), namespace='blog')),
 ]

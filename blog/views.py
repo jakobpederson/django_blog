@@ -1,3 +1,17 @@
+from rest_framework import status
+from rest_framework import generics, permissions
 from django.shortcuts import render
 
-# Create your views here.
+from blog.models import BlogPost
+from blog.serializers import BlogPostSerializer
+
+
+class BlogPostView(generics.CreateAPIView):
+    queryset = BlogPost.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = BlogPostSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        data["author"] = request.user.pk
+        return super().post(request, *args, **kwargs)
