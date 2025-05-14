@@ -7,7 +7,7 @@ from .models import BlogPost
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ('title', 'content', 'author')
+        fields = ('title', 'content', 'author', 'id')
 
     def create(self, validated_data):
         blog_post = BlogPost.objects.create(
