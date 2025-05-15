@@ -1,6 +1,7 @@
 from rest_framework import status
+
 from rest_framework import generics, permissions
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from blog.models import BlogPost
 from blog.serializers import BlogPostSerializer
@@ -23,4 +24,4 @@ class BlogPostRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = BlogPostSerializer
 
     def get_object(self):
-        return self.queryset.get(id=self.kwargs.get('id'))
+        return get_object_or_404(BlogPost, id=self.kwargs.get('id'))
