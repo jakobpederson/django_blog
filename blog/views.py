@@ -25,3 +25,11 @@ class BlogPostRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return get_object_or_404(BlogPost, id=self.kwargs.get('id'))
+
+
+class BlogPostListView(generics.ListAPIView):
+    serializer_class = BlogPostSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return BlogPost.objects.filter(author=self.request.user).order_by("-created_at")

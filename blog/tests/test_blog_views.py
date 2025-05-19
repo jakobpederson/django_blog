@@ -84,3 +84,63 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.id, response_json['id'])
         self.assertEqual(blog_post.title, data['title'])
         self.assertEqual(blog_post.content, data['content'])
+
+    def test_retrieve_blog_post_list_successfully(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_post_1 = BlogPostFactory(author=self.test_user)
+        blog_post_2 = BlogPostFactory(author=self.test_user)
+        url = reverse('blog:list_blog_posts')
+        response = self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        blog_posts = [post["id"] for post in response.json()]
+        self.assertCountEqual(blog_posts, [blog_post_1.id, blog_post_2.id])
+
+    def test_retrieve_blog_post_list_successfully_only_gets_request_user_blog_posts(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_post_1 = BlogPostFactory(author=self.test_user)
+        blog_post_2 = BlogPostFactory(author=self.test_user)
+        new_user = User.objects.create_user(
+            username='newtestuser',
+            email='newtest@example.com',
+            password=self.test_user_password + "1"
+        )
+        blog_post_3 = BlogPostFactory(author=new_user)
+        url = reverse('blog:list_blog_posts')
+        response = self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        blog_posts = [post["id"] for post in response.json()]
+        self.assertCountEqual(blog_posts, [blog_post_1.id, blog_post_2.id])
+
+    def test_retrieve_blog_post_list_successfully_orders_by_created_most_recent(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_post_1 = BlogPostFactory(author=self.test_user)
+        blog_post_2 = BlogPostFactory(author=self.test_user)
+        blog_post_3 = BlogPostFactory(author=self.test_user)
+        url = reverse('blog:list_blog_posts')
+        response = self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        blog_posts = [post["id"] for post in response.json()]
+        self.assertEqual(blog_posts[0], blog_post_3.id)
+        self.assertEqual(blog_posts[1], blog_post_2.id)
+        self.assertEqual(blog_posts[2], blog_post_1.id)
