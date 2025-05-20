@@ -1,10 +1,11 @@
-from authentication.models import LoginHistory
-from blog.models import BlogPost
-from core.tests import AuthenticationTestCase
-from core.factories import BlogPostFactory
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
+
+from authentication.models import LoginHistory
+from blog.models import BlogPost
+from core.factories import BlogPostFactory
+from core.tests import AuthenticationTestCase
 
 
 class BlogViewsTest(AuthenticationTestCase):
@@ -29,6 +30,16 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.title, data['title'])
         self.assertEqual(blog_post.content, data['content'])
         self.assertEqual(blog_post.author, self.test_user)
+
+    def test_create_blog_post_unsuccessful_if_not_logged_in(self):
+        url = reverse('blog:blog_post')
+        data = {
+            'title': 'first',
+            'content': 'lorum ipsum',
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(BlogPost.objects.count(), 0)
 
     def test_retrieve_blog_post_successful(self):
         token_url = reverse('authentication:token_obtain_pair')

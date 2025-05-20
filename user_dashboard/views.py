@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions
 
-from user_dashboard.serializers import DashboardSerializer
 from user_dashboard.models import UserProfile
+from user_dashboard.serializers import DashboardSerializer
 
 
 class DashboardView(generics.RetrieveUpdateAPIView):

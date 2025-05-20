@@ -1,7 +1,5 @@
-from rest_framework import status
-
-from rest_framework import generics, permissions
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from rest_framework import generics, permissions, status
 
 from blog.models import BlogPost
 from blog.serializers import BlogPostSerializer

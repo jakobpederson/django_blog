@@ -1,12 +1,12 @@
-from rest_framework import status
-from rest_framework import generics, permissions
+from django.contrib.auth.models import User
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from .serializers import UserSerializer, LoginHistorySerializer
 from rest_framework_simplejwt.tokens import AccessToken
-from .models import LoginHistory
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .models import LoginHistory
+from .serializers import LoginHistorySerializer, UserSerializer
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

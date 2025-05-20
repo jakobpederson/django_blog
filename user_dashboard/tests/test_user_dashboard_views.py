@@ -1,9 +1,10 @@
-from rest_framework import status
-from authentication.models import LoginHistory
 from django.contrib.auth.models import User
-from user_dashboard.models import UserProfile
-from core.tests import AuthenticationTestCase
 from django.urls import reverse
+from rest_framework import status
+
+from authentication.models import LoginHistory
+from core.tests import AuthenticationTestCase
+from user_dashboard.models import UserProfile
 
 
 class UserDashboardViewsTest(AuthenticationTestCase):
