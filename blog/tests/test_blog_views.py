@@ -4,7 +4,7 @@ from rest_framework import status
 
 from authentication.models import LoginHistory
 from blog.models import BlogPost
-from core.factories import BlogPostFactory
+from core.factories import BlogPostFactory, BlogTagFactory
 from core.tests import AuthenticationTestCase
 
 
@@ -30,6 +30,31 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.title, data['title'])
         self.assertEqual(blog_post.content, data['content'])
         self.assertEqual(blog_post.author, self.test_user)
+
+    def test_create_blog_post_successful_with_tags(self):
+        blog_tag = BlogTagFactory()
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        url = reverse('blog:blog_post')
+        data = {
+            'title': 'first',
+            'content': 'lorum ipsum',
+            'tags': [f'{blog_tag.id}']
+        }
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(BlogPost.objects.count(), 1)
+        blog_post = BlogPost.objects.first()
+        self.assertEqual(blog_post.title, data['title'])
+        self.assertEqual(blog_post.content, data['content'])
+        self.assertEqual(blog_post.author, self.test_user)
+        self.assertEqual(blog_post.tags.first(), blog_tag)
 
     def test_create_blog_post_unsuccessful_if_not_logged_in(self):
         url = reverse('blog:blog_post')
