@@ -121,6 +121,31 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.title, data['title'])
         self.assertEqual(blog_post.content, data['content'])
 
+    def test_update_blog_post_with_tags_successful(self):
+        blog_tag = BlogTagFactory()
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_post = BlogPostFactory(author=self.test_user)
+        data = {
+            'title': 'second',
+            'content': 'second lorum ipsum',
+            'tags': [f'{blog_tag.id}']
+        }
+        url = reverse('blog:get_blog_post', kwargs={'id': f'{blog_post.id}'})
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_json = response.json()
+        blog_post.refresh_from_db()
+        self.assertEqual(blog_post.id, response_json['id'])
+        self.assertEqual(blog_post.title, data['title'])
+        self.assertEqual(blog_post.content, data['content'])
+
     def test_retrieve_blog_post_list_successfully(self):
         token_url = reverse('authentication:token_obtain_pair')
         token_data = {

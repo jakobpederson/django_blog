@@ -12,4 +12,4 @@ class BlogPost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_post')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
-    tags = models.ManyToManyField(BlogTag, related_name="posts", blank=True, null=True)
+    tags = models.ManyToManyField(BlogTag, related_name="posts", blank=True)
