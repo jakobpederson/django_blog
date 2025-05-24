@@ -20,3 +20,9 @@ class BlogPostSerializer(serializers.ModelSerializer):
         if tags:
             blog_post.tags.add(*tags)
         return blog_post
+
+
+class BlogTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlogTag
+        fields = ('name',)

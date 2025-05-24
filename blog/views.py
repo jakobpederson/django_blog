@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, permissions, status
 
-from blog.models import BlogPost
-from blog.serializers import BlogPostSerializer
+from blog.models import BlogPost, BlogTag
+from blog.serializers import BlogPostSerializer, BlogTagSerializer
 
 
 class BlogPostView(generics.CreateAPIView):
@@ -31,3 +31,9 @@ class BlogPostListView(generics.ListAPIView):
 
     def get_queryset(self):
         return BlogPost.objects.filter(author=self.request.user).order_by("-created_at")
+
+
+class BlogTagView(generics.CreateAPIView):
+    queryset = BlogTag.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = BlogTagSerializer

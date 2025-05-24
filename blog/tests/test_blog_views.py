@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from authentication.models import LoginHistory
-from blog.models import BlogPost
+from blog.models import BlogPost, BlogTag
 from core.factories import BlogPostFactory, BlogTagFactory
 from core.tests import AuthenticationTestCase
 
@@ -205,3 +205,22 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_posts[0], blog_post_3.id)
         self.assertEqual(blog_posts[1], blog_post_2.id)
         self.assertEqual(blog_posts[2], blog_post_1.id)
+
+    def test_create_blog_tag_successful(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        url = reverse('blog:blog_tag')
+        data = {
+            'name': 'first',
+        }
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(BlogTag.objects.count(), 1)
+        blog_tag = BlogTag.objects.first()
+        self.assertEqual(blog_tag.name, data['name'])
