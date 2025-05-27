@@ -37,3 +37,11 @@ class BlogTagView(generics.CreateAPIView):
     queryset = BlogTag.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = BlogTagSerializer
+
+
+class BlogTagListView(generics.ListAPIView):
+    serializer_class = BlogTagSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return BlogTag.objects.order_by("name")

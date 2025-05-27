@@ -25,4 +25,4 @@ class BlogPostSerializer(serializers.ModelSerializer):
 class BlogTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogTag
-        fields = ('name',)
+        fields = ('id', 'name',)

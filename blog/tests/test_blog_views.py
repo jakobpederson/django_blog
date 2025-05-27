@@ -145,6 +145,37 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.id, response_json['id'])
         self.assertEqual(blog_post.title, data['title'])
         self.assertEqual(blog_post.content, data['content'])
+        self.assertEqual(blog_post.tags.count(), 1)
+        self.assertEqual([t.id for t in blog_post.tags.all()][0], blog_tag.id)
+
+    def test_update_blog_post_change_tags_successful(self):
+        blog_tag = BlogTagFactory()
+        new_blog_tag = BlogTagFactory()
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_post = BlogPostFactory(author=self.test_user)
+        blog_post.tags.add(blog_tag)
+        data = {
+            'title': 'second',
+            'content': 'second lorum ipsum',
+            'tags': [f'{new_blog_tag.id}']
+        }
+        url = reverse('blog:get_blog_post', kwargs={'id': f'{blog_post.id}'})
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_json = response.json()
+        blog_post.refresh_from_db()
+        self.assertEqual(blog_post.id, response_json['id'])
+        self.assertEqual(blog_post.title, data['title'])
+        self.assertEqual(blog_post.content, data['content'])
+        self.assertEqual(blog_post.tags.count(), 1)
+        self.assertEqual([t.id for t in blog_post.tags.all()][0], new_blog_tag.id)
 
     def test_retrieve_blog_post_list_successfully(self):
         token_url = reverse('authentication:token_obtain_pair')
@@ -224,3 +255,23 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(BlogTag.objects.count(), 1)
         blog_tag = BlogTag.objects.first()
         self.assertEqual(blog_tag.name, data['name'])
+
+    def test_retrieve_blog_tag_list_successfully(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_tag_1 = BlogTagFactory()
+        blog_tag_2 = BlogTagFactory()
+        url = reverse('blog:list_blog_tags')
+        response = self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expected = [
+            {'id': 1, 'name': 'Blog tag 1'},
+            {'id': 2, 'name': 'Blog tag 2'}
+        ]
+        self.assertCountEqual(response.json(), expected)
