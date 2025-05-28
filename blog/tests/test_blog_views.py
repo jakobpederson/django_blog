@@ -271,7 +271,30 @@ class BlogViewsTest(AuthenticationTestCase):
         response = self.client.get(url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected = [
-            {'id': 1, 'name': 'Blog tag 1'},
-            {'id': 2, 'name': 'Blog tag 2'}
+            {'id': 1, 'name': f'{blog_tag_1.name}'},
+            {'id': 2, 'name': f'{blog_tag_2.name}'}
+        ]
+        self.assertCountEqual(response.json(), expected)
+
+    def test_retrieve_blog_post_list_filters_by_tags(self):
+        token_url = reverse('authentication:token_obtain_pair')
+        token_data = {
+            'username': f'{self.test_user.username}',
+            'password': f'{self.test_user_password}'
+        }
+        token_response = self.client.post(token_url, token_data, format='json')
+        token = token_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        blog_tag_1 = BlogTagFactory()
+        blog_tag_2 = BlogTagFactory()
+        blog_post_1 = BlogPostFactory(author=self.test_user)
+        blog_post_1.tags.add(blog_tag_1)
+        blog_post_2 = BlogPostFactory(author=self.test_user)
+        blog_post_2.tags.add(blog_tag_2)
+        url = reverse('blog:list_blog_posts')
+        response = self.client.get(url, {"tags": f'{blog_tag_1.name}'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expected = [
+            {'title': f'{blog_post_1.title}', 'content': f'{blog_post_1.content}', 'author': self.test_user.id, 'id': blog_post_1.id, 'tags': [blog_tag_1.id]}
         ]
         self.assertCountEqual(response.json(), expected)
