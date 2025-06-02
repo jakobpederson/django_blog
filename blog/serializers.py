@@ -8,14 +8,14 @@ from blog.models import BlogPost, BlogTag
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ('title', 'content', 'author', 'id', 'tags')
+        fields = ("title", "content", "author", "id", "tags")
 
     def create(self, validated_data):
         tags = validated_data.get("tags")
         blog_post = BlogPost.objects.create(
-            title=validated_data['title'],
-            content=validated_data['content'],
-            author=validated_data['author'],
+            title=validated_data["title"],
+            content=validated_data["content"],
+            author=validated_data["author"],
         )
         if tags:
             blog_post.tags.add(*tags)
@@ -25,4 +25,7 @@ class BlogPostSerializer(serializers.ModelSerializer):
 class BlogTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogTag
-        fields = ('id', 'name',)
+        fields = (
+            "id",
+            "name",
+        )

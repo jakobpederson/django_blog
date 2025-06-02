@@ -6,21 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0002_blogpost_created_at'),
+        ("blog", "0002_blogpost_created_at"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BlogTag',
+            name="BlogTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField()),
-                ('created_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField()),
+                ("created_at", models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.AddField(
-            model_name='blogpost',
-            name='tags',
-            field=models.ManyToManyField(blank=True, null=True, related_name='posts', to='blog.blogtag'),
+            model_name="blogpost",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True, null=True, related_name="posts", to="blog.blogtag"
+            ),
         ),
     ]

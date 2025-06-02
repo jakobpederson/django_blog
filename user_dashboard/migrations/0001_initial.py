@@ -15,14 +15,34 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bio', models.TextField(blank=True, null=True)),
-                ('profile_image', models.ImageField(blank=True, null=True, upload_to='profile_images/')),
-                ('location', models.CharField(blank=True, max_length=100, null=True)),
-                ('date_of_birth', models.DateField(blank=True, null=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("bio", models.TextField(blank=True, null=True)),
+                (
+                    "profile_image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="profile_images/"
+                    ),
+                ),
+                ("location", models.CharField(blank=True, max_length=100, null=True)),
+                ("date_of_birth", models.DateField(blank=True, null=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

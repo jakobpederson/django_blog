@@ -7,7 +7,7 @@ from user_dashboard.models import UserProfile
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id', 'bio', 'location', 'date_of_birth']
+        fields = ["id", "bio", "location", "date_of_birth"]
 
 
 class DashboardSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class DashboardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'profile', 'first_name', 'last_name']
+        fields = ["id", "username", "profile", "first_name", "last_name"]
 
     def update(self, instance, validated_data):
         profile = instance.profile

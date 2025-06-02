@@ -17,24 +17,25 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             if token_str:
                 try:
                     token = AccessToken(token_str)
-                    user = User.objects.get(id=token['user_id'])
+                    user = User.objects.get(id=token["user_id"])
                     LoginHistory.objects.create(
                         user=user,
                         ip_address=self.get_client_ip(request),
-                        user_agent=request.META.get('HTTP_USER_AGENT', '')
+                        user_agent=request.META.get("HTTP_USER_AGENT", ""),
                     )
                 except Exception as e:
-                    raise Exception(f"Error decoding token or creating login history: {e}")
+                    raise Exception(
+                        f"Error decoding token or creating login history: {e}"
+                    )
         return response
 
     def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(",")[0]
         else:
-            ip = request.META.get('REMOTE_ADDR')
+            ip = request.META.get("REMOTE_ADDR")
         return ip
-
 
 
 class RegisterView(generics.CreateAPIView):

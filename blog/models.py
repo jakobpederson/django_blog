@@ -9,7 +9,7 @@ class BlogTag(models.Model):
 
 class BlogPost(models.Model):
     title = models.CharField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_post')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_post")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(BlogTag, related_name="posts", blank=True)
