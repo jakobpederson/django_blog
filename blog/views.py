@@ -30,7 +30,9 @@ class BlogPostListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        qs = BlogPost.objects.filter(author=self.request.user).order_by("-created_at")
+        qs = BlogPost.objects.order_by("-created_at")
+        if author_id := self.request.query_params.get("author"):
+            qs = qs.filter(author__id=author_id)
         if tags := self.request.query_params.get("tags"):
             qs = qs.filter(tags__name__in=tags.split(","))
         return qs
