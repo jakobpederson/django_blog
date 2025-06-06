@@ -2,7 +2,7 @@ import factory
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 
-from blog.models import BlogPost, BlogTag
+from blog.models import BlogCategory, BlogPost, BlogTag
 
 
 class BlogPostFactory(DjangoModelFactory):
@@ -19,4 +19,12 @@ class BlogTagFactory(DjangoModelFactory):
         model = BlogTag
 
     name = factory.Sequence(lambda n: f"Blog tag {n}")
+    created_at = factory.LazyFunction(timezone.now)
+
+
+class BlogCategoryFactory(DjangoModelFactory):
+    class Meta:
+        model = BlogCategory
+
+    name = factory.Sequence(lambda n: f"Blog category {n}")
     created_at = factory.LazyFunction(timezone.now)

@@ -210,7 +210,9 @@ class BlogViewsTest(AuthenticationTestCase):
         )
         blog_post_3 = BlogPostFactory(author=new_user)
         url = reverse("blog:list_blog_posts")
-        response = self.client.get(url, {"author": f"{blog_post_1.author.id}"}, format="json")
+        response = self.client.get(
+            url, {"author": f"{blog_post_1.author.id}"}, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         blog_posts = [post["id"] for post in response.json()]
         self.assertCountEqual(blog_posts, [blog_post_1.id, blog_post_2.id])

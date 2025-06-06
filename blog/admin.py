@@ -15,3 +15,10 @@ class BlogTagAdmin(admin.ModelAdmin):
     list_display = ("name",)
     list_filter = ("name",)
     search_fields = ("name",)
+
+
+@admin.register(models.BlogCategory)
+class BlogCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    list_filter = ("name",)
+    search_fields = ("name",)
