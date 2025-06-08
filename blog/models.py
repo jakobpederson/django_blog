@@ -14,6 +14,7 @@ class BlogCategory(models.Model):
     name = models.CharField()
     parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name_plural = "categories"

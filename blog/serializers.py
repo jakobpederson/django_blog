@@ -2,13 +2,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from blog.models import BlogPost, BlogTag
+from blog.models import BlogCategory, BlogPost, BlogTag
 
 
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ("title", "content", "author", "id", "tags")
+        fields = ("title", "content", "author", "id", "tags", "slug")
 
     def create(self, validated_data):
         tags = validated_data.get("tags")
@@ -29,3 +29,9 @@ class BlogTagSerializer(serializers.ModelSerializer):
             "id",
             "name",
         )
+
+
+class BlogCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlogCategory
+        fields = ("id", "name", "slug")

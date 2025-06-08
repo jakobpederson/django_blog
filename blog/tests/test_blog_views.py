@@ -4,7 +4,7 @@ from rest_framework import status
 
 from authentication.models import LoginHistory
 from blog.models import BlogPost, BlogTag
-from core.factories import BlogPostFactory, BlogTagFactory
+from core.factories import BlogCategoryFactory, BlogPostFactory, BlogTagFactory
 from core.tests import AuthenticationTestCase
 
 
@@ -276,6 +276,34 @@ class BlogViewsTest(AuthenticationTestCase):
         ]
         self.assertCountEqual(response.json(), expected)
 
+    def test_retrieve_blog_category_list_successfully(self):
+        token_url = reverse("authentication:token_obtain_pair")
+        token_data = {
+            "username": f"{self.test_user.username}",
+            "password": f"{self.test_user_password}",
+        }
+        token_response = self.client.post(token_url, token_data, format="json")
+        token = token_response.data["access"]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        blog_category_1 = BlogCategoryFactory()
+        blog_category_2 = BlogCategoryFactory()
+        url = reverse("blog:list_blog_categories")
+        response = self.client.get(url, {}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expected = [
+            {
+                "id": 1,
+                "name": f"{blog_category_1.name}",
+                "slug": f"{blog_category_1.slug}",
+            },
+            {
+                "id": 2,
+                "name": f"{blog_category_2.name}",
+                "slug": f"{blog_category_2.slug}",
+            },
+        ]
+        self.assertCountEqual(response.json(), expected)
+
     def test_retrieve_blog_post_list_filters_by_tags(self):
         token_url = reverse("authentication:token_obtain_pair")
         token_data = {
@@ -301,6 +329,7 @@ class BlogViewsTest(AuthenticationTestCase):
                 "author": self.test_user.id,
                 "id": blog_post_1.id,
                 "tags": [blog_tag_1.id],
+                "slug": blog_post_1.slug,
             }
         ]
         self.assertCountEqual(response.json(), expected)
