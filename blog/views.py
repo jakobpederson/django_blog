@@ -39,6 +39,8 @@ class BlogPostListView(generics.ListAPIView):
             qs = qs.filter(author__id=author_id)
         if tags := self.request.query_params.get("tags"):
             qs = qs.filter(tags__name__in=tags.split(","))
+        if category := self.request.query_params.get("category"):
+            qs = qs.filter(category__name=category)
         return qs
 
 

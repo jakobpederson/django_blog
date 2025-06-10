@@ -8,7 +8,7 @@ from blog.models import BlogCategory, BlogPost, BlogTag
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ("title", "content", "author", "id", "tags", "slug")
+        fields = ("title", "content", "author", "id", "tags", "slug", "category")
 
     def create(self, validated_data):
         tags = validated_data.get("tags")
