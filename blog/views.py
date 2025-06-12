@@ -64,3 +64,9 @@ class BlogCategoryListView(generics.ListAPIView):
 
     def get_queryset(self):
         return BlogCategory.objects.order_by("name")
+
+
+class BlogCategoryView(generics.CreateAPIView):
+    queryset = BlogCategory.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = BlogCategorySerializer
