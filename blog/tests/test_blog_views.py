@@ -72,7 +72,7 @@ class BlogViewsTest(AuthenticationTestCase):
         token = token_response.data["access"]
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
-        url = reverse("blog:get_blog_post", kwargs={"id": f"{blog_post.id}"})
+        url = reverse("blog:get_blog_post", kwargs={"slug": f"{blog_post.slug}"})
         response = self.client.get(url, {}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_json = response.json()
@@ -90,7 +90,7 @@ class BlogViewsTest(AuthenticationTestCase):
         token = token_response.data["access"]
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
-        url = reverse("blog:get_blog_post", kwargs={"id": 123})
+        url = reverse("blog:get_blog_post", kwargs={"slug": 123})
         response = self.client.get(url, {}, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -108,7 +108,7 @@ class BlogViewsTest(AuthenticationTestCase):
             "title": "second",
             "content": "second lorum ipsum",
         }
-        url = reverse("blog:get_blog_post", kwargs={"id": f"{blog_post.id}"})
+        url = reverse("blog:get_blog_post", kwargs={"slug": f"{blog_post.slug}"})
         response = self.client.patch(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_json = response.json()
@@ -133,7 +133,7 @@ class BlogViewsTest(AuthenticationTestCase):
             "content": "second lorum ipsum",
             "tags": [f"{blog_tag.id}"],
         }
-        url = reverse("blog:get_blog_post", kwargs={"id": f"{blog_post.id}"})
+        url = reverse("blog:get_blog_post", kwargs={"slug": f"{blog_post.slug}"})
         response = self.client.patch(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_json = response.json()
@@ -162,7 +162,7 @@ class BlogViewsTest(AuthenticationTestCase):
             "content": "second lorum ipsum",
             "tags": [f"{new_blog_tag.id}"],
         }
-        url = reverse("blog:get_blog_post", kwargs={"id": f"{blog_post.id}"})
+        url = reverse("blog:get_blog_post", kwargs={"slug": f"{blog_post.slug}"})
         response = self.client.patch(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_json = response.json()
@@ -378,12 +378,14 @@ class BlogViewsTest(AuthenticationTestCase):
         token_response = self.client.post(token_url, token_data, format="json")
         token = token_response.data["access"]
         url = reverse("blog:blog_category")
+        print(f"{url=}")
         data = {
             "name": "first",
             "slug": "lorumipsum",
         }
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         response = self.client.post(url, data, format="json")
+        print(f"{response.json()=}")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(BlogCategory.objects.count(), 1)
         blog_category = BlogCategory.objects.first()

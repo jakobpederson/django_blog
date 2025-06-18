@@ -26,7 +26,7 @@ class BlogPostRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = BlogPostSerializer
 
     def get_object(self):
-        return get_object_or_404(BlogPost, id=self.kwargs.get("id"))
+        return get_object_or_404(BlogPost, slug=self.kwargs.get("slug"))
 
 
 class BlogPostListView(generics.ListAPIView):

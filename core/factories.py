@@ -12,7 +12,6 @@ class BlogPostFactory(DjangoModelFactory):
     title = factory.Sequence(lambda n: f"Blog post title {n}")
     content = factory.Faker("paragraph", nb_sentences=5)
     created_at = factory.LazyFunction(timezone.now)
-    slug = factory.Sequence(lambda n: f"Post Slug field {n}")
 
 
 class BlogTagFactory(DjangoModelFactory):

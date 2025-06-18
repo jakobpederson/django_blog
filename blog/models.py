@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.text import slugify
 
 
 class BlogTag(models.Model):
@@ -33,3 +34,8 @@ class BlogPost(models.Model):
     category = models.ForeignKey(
         BlogCategory, on_delete=models.SET_NULL, null=True, related_name="posts"
     )
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        return super().save(*args, **kwargs)
