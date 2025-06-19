@@ -8,8 +8,9 @@ from core.factories import BlogCategoryFactory, BlogPostFactory, BlogTagFactory
 from core.tests import AuthenticationTestCase
 
 
-class BlogViewsTest(AuthenticationTestCase):
-    def test_create_blog_post_successful(self):
+class AuthenticatedUserTestCase(AuthenticationTestCase):
+    def setUp(self):
+        super().setUp()
         token_url = reverse("authentication:token_obtain_pair")
         token_data = {
             "username": f"{self.test_user.username}",
@@ -17,12 +18,16 @@ class BlogViewsTest(AuthenticationTestCase):
         }
         token_response = self.client.post(token_url, token_data, format="json")
         token = token_response.data["access"]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+
+class BlogViewsTest(AuthenticatedUserTestCase):
+    def test_create_blog_post_successful(self):
         url = reverse("blog:blog_post")
         data = {
             "title": "first",
             "content": "lorum ipsum",
         }
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(BlogPost.objects.count(), 1)
@@ -33,16 +38,8 @@ class BlogViewsTest(AuthenticationTestCase):
 
     def test_create_blog_post_successful_with_tags(self):
         blog_tag = BlogTagFactory()
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
         url = reverse("blog:blog_post")
         data = {"title": "first", "content": "lorum ipsum", "tags": [f"{blog_tag.id}"]}
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(BlogPost.objects.count(), 1)
@@ -53,6 +50,7 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.tags.first(), blog_tag)
 
     def test_create_blog_post_unsuccessful_if_not_logged_in(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer garbage")
         url = reverse("blog:blog_post")
         data = {
             "title": "first",
@@ -63,14 +61,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(BlogPost.objects.count(), 0)
 
     def test_retrieve_blog_post_successful(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
         url = reverse("blog:get_blog_post", kwargs={"slug": f"{blog_post.slug}"})
         response = self.client.get(url, {}, format="json")
@@ -81,28 +71,12 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_post.content, response_json["content"])
 
     def test_retrieve_blog_post_unsuccessfully(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
         url = reverse("blog:get_blog_post", kwargs={"slug": 123})
         response = self.client.get(url, {}, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_blog_post_successful(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
         data = {
             "title": "second",
@@ -119,14 +93,6 @@ class BlogViewsTest(AuthenticationTestCase):
 
     def test_update_blog_post_with_tags_successful(self):
         blog_tag = BlogTagFactory()
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
         data = {
             "title": "second",
@@ -147,14 +113,6 @@ class BlogViewsTest(AuthenticationTestCase):
     def test_update_blog_post_change_tags_successful(self):
         blog_tag = BlogTagFactory()
         new_blog_tag = BlogTagFactory()
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post = BlogPostFactory(author=self.test_user)
         blog_post.tags.add(blog_tag)
         data = {
@@ -174,14 +132,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual([t.id for t in blog_post.tags.all()][0], new_blog_tag.id)
 
     def test_retrieve_blog_post_list_successfully(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post_1 = BlogPostFactory(author=self.test_user)
         blog_post_2 = BlogPostFactory(author=self.test_user)
         url = reverse("blog:list_blog_posts")
@@ -193,14 +143,6 @@ class BlogViewsTest(AuthenticationTestCase):
     def test_retrieve_blog_post_list_successfully_can_filter_on_author(
         self,
     ):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post_1 = BlogPostFactory(author=self.test_user)
         blog_post_2 = BlogPostFactory(author=self.test_user)
         new_user = User.objects.create_user(
@@ -218,14 +160,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertCountEqual(blog_posts, [blog_post_1.id, blog_post_2.id])
 
     def test_retrieve_blog_post_list_successfully_orders_by_created_most_recent(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_post_1 = BlogPostFactory(author=self.test_user)
         blog_post_2 = BlogPostFactory(author=self.test_user)
         blog_post_3 = BlogPostFactory(author=self.test_user)
@@ -238,18 +172,10 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_posts[2], blog_post_1.id)
 
     def test_create_blog_tag_successful(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
         url = reverse("blog:blog_tag")
         data = {
             "name": "first",
         }
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(BlogTag.objects.count(), 1)
@@ -257,14 +183,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertEqual(blog_tag.name, data["name"])
 
     def test_retrieve_blog_tag_list_successfully(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_tag_1 = BlogTagFactory()
         blog_tag_2 = BlogTagFactory()
         url = reverse("blog:list_blog_tags")
@@ -277,14 +195,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertCountEqual(response.json(), expected)
 
     def test_retrieve_blog_category_list_successfully(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_category_1 = BlogCategoryFactory()
         blog_category_2 = BlogCategoryFactory()
         url = reverse("blog:list_blog_categories")
@@ -305,14 +215,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertCountEqual(response.json(), expected)
 
     def test_retrieve_blog_post_list_filters_by_tags(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         blog_tag_1 = BlogTagFactory()
         blog_tag_2 = BlogTagFactory()
         blog_post_1 = BlogPostFactory(author=self.test_user)
@@ -336,14 +238,6 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertCountEqual(response.json(), expected)
 
     def test_retrieve_blog_post_list_filters_by_category(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         category_1 = BlogCategoryFactory()
         category_2 = BlogCategoryFactory()
         blog_post_1 = BlogPostFactory(author=self.test_user)
@@ -370,24 +264,23 @@ class BlogViewsTest(AuthenticationTestCase):
         self.assertCountEqual(response.json(), expected)
 
     def test_create_blog_category_successful(self):
-        token_url = reverse("authentication:token_obtain_pair")
-        token_data = {
-            "username": f"{self.test_user.username}",
-            "password": f"{self.test_user_password}",
-        }
-        token_response = self.client.post(token_url, token_data, format="json")
-        token = token_response.data["access"]
         url = reverse("blog:blog_category")
-        print(f"{url=}")
         data = {
             "name": "first",
             "slug": "lorumipsum",
         }
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         response = self.client.post(url, data, format="json")
-        print(f"{response.json()=}")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(BlogCategory.objects.count(), 1)
         blog_category = BlogCategory.objects.first()
         self.assertEqual(blog_category.name, data["name"])
         self.assertEqual(blog_category.slug, data["slug"])
+
+    def test_retrieve_blog_category_successful(self):
+        blog_category = BlogCategoryFactory()
+        url = reverse("blog:get_blog_category", kwargs={"slug": f"{blog_category.slug}"})
+        response = self.client.get(url, {}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_json = response.json()
+        self.assertEqual(blog_category.id, response_json["id"])
+        self.assertEqual(blog_category.name, response_json["name"])

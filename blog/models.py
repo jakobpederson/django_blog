@@ -20,6 +20,11 @@ class BlogCategory(models.Model):
     class Meta:
         verbose_name_plural = "categories"
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Category: {self.name}"
 
